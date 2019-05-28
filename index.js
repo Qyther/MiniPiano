@@ -46,27 +46,32 @@ var sheets = [
 ];
 var last;
 var gap = 0.5;
-var size = [innerWidth/40,innerWidth/40*6];
+var size = [0,0];
 var offset = [0,0];
+var as = 4/3.5;
 function frame() {
     var now = Date.now();
     if(!last) last = now;
     c=document.querySelector("canvas");
-    c.width=innerWidth;
-    c.height=innerHeight;
+    var min = Math.min(innerWidth,innerHeight);
+    c.width=min;
+    c.height=min/as;
     ctx=c.getContext("2d");
     //-=-//
-    size = [innerWidth/40,innerWidth/40*6];
-    gap = innerWidth/800;
-    offset=[innerWidth/2-(size[0]+gap)/2*36,innerHeight/4];
+    size = [c.width/40,c.width/40*6];
+    gap = c.width/800;
+    offset=[c.width/2-(size[0]+gap)/2*36,c.width/4];
     if(endnotes.length===0) playednotes=[];
     var anote = "1234567890qwertyuiopasdfghjklzxcvbnm".split("");
+    ctx.textAlign="center";
     for(var i=0;i<36;i++) {
         ctx.fillStyle="white";
         for(var j=0;j<playednotes.length;j++) {
             if(anote[i]===playednotes[j]) ctx.fillStyle="#ddd";
         }
         ctx.fillRect(i*(size[0]+gap)+offset[0],offset[1],size[0],size[1]);
+        ctx.fillStyle="turquoise";
+        ctx.fillText(anote[i],i*(size[0]+gap)+offset[0]+size[0]/2,offset[1]+size[1]/4*3);
     }
     var anote = new Array(36);
     for(var i=0;i<anote.length-1;i+=7) {
@@ -86,6 +91,10 @@ function frame() {
                 if(notea[i]===playednotes[j]) ctx.fillStyle="#333";
             }
             ctx.fillRect(i*(size[0]+gap)+offset[0]+size[0]/2,offset[1],size[0],size[1]/2);
+            
+            ctx.fillStyle="turquoise";
+            if(notea[i]==="Dead") notea[i]="^";
+            ctx.fillText(notea[i],i*(size[0]+gap)+offset[0]+size[0],offset[1]+size[1]/4);
         }
     }
     for(var i=0;i<endnotes.length;i++) {
@@ -98,30 +107,29 @@ function frame() {
             }
         }
     }
-    ctx.textAlign="center";
-    ctx.font=innerWidth/10+"px monospace";
+    ctx.font=c.width/10+"px monospace";
     ctx.fillStyle="#555";
-    ctx.fillText("Virtual Piano",innerWidth/2,innerHeight/6);
-    ctx.font=innerWidth/20+"px monospace";
+    ctx.fillText("Virtual Piano",c.width/2,c.width/6);
+    ctx.font=c.width/20+"px monospace";
     ctx.fillStyle="#777";
-    ctx.fillText("Mode: "+modes[mode],innerWidth/2,innerHeight/2);
-    ctx.fillText("Sheets:",innerWidth/2,innerHeight/2+innerHeight/7.5);
-    ctx.font=innerWidth/52+"px monospace";
+    ctx.fillText("Mode: "+modes[mode],c.width/2,c.width/2);
+    ctx.fillText("Sheets:",c.width/2,c.width/2+c.width/7.5);
+    ctx.font=c.width/52+"px monospace";
     for(var i=0;i<sheets.length;i++) {
-        ctx.fillText(sheets[i][0]+" - "+sheets[i][1],innerWidth/2,innerHeight/2+innerHeight/6+innerWidth/52*i);
+        ctx.fillText(sheets[i][0]+" - "+sheets[i][1],c.width/2,c.width/2+c.width/6+c.width/52*i);
     }
     if(playFlat) ctx.fillStyle="#555";
-    ctx.translate(innerWidth/2,innerHeight/2+innerHeight/20);
+    ctx.translate(c.width/2,c.width/2+c.width/20);
     ctx.beginPath();
-    ctx.moveTo(0,-innerHeight/40);
-    ctx.lineTo(-innerWidth/40,0);
-    ctx.lineTo(-innerWidth/80,0);
-    ctx.lineTo(-innerWidth/80,innerHeight/40);
+    ctx.moveTo(0,-c.width/40);
+    ctx.lineTo(-c.width/40,0);
+    ctx.lineTo(-c.width/80,0);
+    ctx.lineTo(-c.width/80,c.width/40);
     
-    ctx.lineTo(innerWidth/80,innerHeight/40);
-    ctx.lineTo(innerWidth/80,0);
-    ctx.lineTo(innerWidth/40,0);
-    ctx.lineTo(0,-innerHeight/40);
+    ctx.lineTo(c.width/80,c.width/40);
+    ctx.lineTo(c.width/80,0);
+    ctx.lineTo(c.width/40,0);
+    ctx.lineTo(0,-c.width/40);
     ctx.fill();
     ctx.closePath();
     
@@ -211,7 +219,6 @@ var notes = [
     ["E",466.2],
     
     //TYIOP SDGHJ LZCVB
-	//TWFkZSBieSBCYXJvbiE
     ["T",554.4],
     ["Y",622.3],
     ["I",740],
@@ -233,7 +240,6 @@ var notes = [
 function collide(x,y,w,h,x0,y0,w0,h0) {
   return !(x0>(x+w)||(x0+w0)<x||y0>(y+h)||(y0+h0)<y);
 }
-//Baron
 function checkNote(x,y) {
     var anote = new Array(36);
     for(var i=0;i<anote.length-1;i+=7) {
